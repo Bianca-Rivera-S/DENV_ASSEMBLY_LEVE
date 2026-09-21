@@ -1,0 +1,7 @@
+work/
+.nextflow*
+results/
+tmp/
+CARPETA-PROVISIONAL-PRUEBAS/
+input/
+logs/
