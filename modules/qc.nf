@@ -1,7 +1,6 @@
 process FASTP {
     tag "$meta.id"
     label 'process_medium'
-    conda "${projectDir}/environment_illumina.yml"
 
     publishDir "${params.outdir}/illumina/trimming", mode: 'copy', pattern: "*.fastp.fastq.gz"
     publishDir "${params.outdir}/illumina/qc",       mode: 'copy', pattern: "*.{json,html}"
@@ -20,17 +19,17 @@ process FASTP {
     def read_out = meta.single_end ? "--out1 ${prefix}_trimmed.fastp.fastq.gz" : "--out1 ${prefix}_1.fastp.fastq.gz --out2 ${prefix}_2.fastp.fastq.gz"
 
     """
-    fastp \\
-        ${read_in} \\
-        ${read_out} \\
-        --qualified_quality_phred 20 \\
-        --unqualified_percent_limit 30 \\
-        --length_required 50 \\
-        --detect_adapter_for_pe \\
-        --cut_front \\
-        --cut_tail \\
-        --thread ${task.cpus} \\
-        --json ${prefix}.fastp.json \\
+    fastp \
+        ${read_in} \
+        ${read_out} \
+        --qualified_quality_phred 20 \
+        --unqualified_percent_limit 30 \
+        --length_required 50 \
+        --detect_adapter_for_pe \
+        --cut_front \
+        --cut_tail \
+        --thread ${task.cpus} \
+        --json ${prefix}.fastp.json \
         --html ${prefix}.fastp.html
     """
 }

@@ -1,7 +1,6 @@
 process BWA_MEM {
     tag "$meta.id"
     label 'process_high'
-    conda "${projectDir}/environment_illumina.yml"
 
     publishDir "${params.outdir}/illumina/mapping", mode: 'copy', pattern: "*.{bam,bai,flagstat}"
 
@@ -20,11 +19,12 @@ process BWA_MEM {
         bwa index ${fasta}
     fi
 
-    bwa mem -t ${task.cpus} -R '@RG\\tID:${prefix}\\tSM:${prefix}\\tPL:ILLUMINA' ${fasta} ${reads} | \\
-    samtools view -@ ${task.cpus} -bS - | \\
+    bwa mem -t ${task.cpus} -R '@RG\\tID:${prefix}\\tSM:${prefix}\\tPL:ILLUMINA' ${fasta} ${reads} | \
+    samtools view -@ ${task.cpus} -bS - | \
     samtools sort -@ ${task.cpus} -o ${prefix}.sorted.bam -
 
     samtools index -@ ${task.cpus} ${prefix}.sorted.bam
     samtools flagstat -@ ${task.cpus} ${prefix}.sorted.bam > ${prefix}.flagstat
     """
 }
+

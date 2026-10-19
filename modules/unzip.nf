@@ -2,27 +2,28 @@ process UNZIP_ONT {
     tag "$meta.id"
 
     input:
-    tuple val(meta), path(infile)
+    tuple val(meta), path(infiles)
 
     output:
-    tuple val(meta), path("*.fastq"), emit: fastq
+    tuple val(meta), path("${meta.id}.fastq"), emit: fastq
 
     script:
+    def sample_id = meta.id
     """
-    if [[ "${infile}" == *.zip ]]; then
-        # Descomprime el ZIP en un directorio temporal
-        unzip -q ${infile} -d unzipped_dir/
-        
-        # Busca cualquier archivo .fastq o .fq (incluso dentro de subcarpetas)
-        FASTQ_FILES=\$(find unzipped_dir/ -type f \\( -name "*.fastq" -o -name "*.fq" -o -name "*.fastq.gz" -o -name "*.fq.gz" \\))
-        
-        # Concatena todas las lecturas encontradas en un solo FASTQ plano
-        zcat \$FASTQ_FILES 2>/dev/null > ${meta.id}.fastq || cat \$FASTQ_FILES > ${meta.id}.fastq
-    elif [[ "${infile}" == *.gz ]]; then
-        zcat ${infile} > ${meta.id}.fastq
-    else
-        cp ${infile} ${meta.id}.fastq
-    fi
+    SAMPLE="${sample_id}"
+    rm -f \${SAMPLE}.fastq
+
+    for f in ${infiles}; do
+        if [[ "\$f" == *.zip ]]; then
+            unzip -q "\$f" -d temp_unzip/
+            find temp_unzip/ -type f \( -name "*.fastq" -o -name "*.fq" -o -name "*.fastq.gz" -o -name "*.fq.gz" \) | xargs zcat 2>/dev/null >> \${SAMPLE}.fastq || find temp_unzip/ -type f \( -name "*.fastq" -o -name "*.fq" \) | xargs cat >> \${SAMPLE}.fastq
+            rm -rf temp_unzip/
+        elif [[ "\$f" == *.gz ]]; then
+            zcat "\$f" >> \${SAMPLE}.fastq
+        else
+            cat "\$f" >> \${SAMPLE}.fastq
+        fi
+    done
     """
 }
 

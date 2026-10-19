@@ -1,7 +1,13 @@
 work/
 .nextflow*
-results/
 tmp/
-CARPETA-PROVISIONAL-PRUEBAS/
-input/
 logs/
+LOGS/
+results/
+input/
+medaka_*.hdf
+medaka_out_*/
+CARPETA-PROVISIONAL-PRUEBAS/
+.DS_Store
+*.swp
+
